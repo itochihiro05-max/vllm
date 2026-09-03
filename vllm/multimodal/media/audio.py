@@ -27,12 +27,24 @@ logger = init_logger(__name__)
 
 try:
     import av
-except ImportError:
+except Exception as exc:
+    if not (isinstance(exc, ModuleNotFoundError) and exc.name == "av"):
+        logger.warning(
+            "av is installed but failed to import; audio support "
+            "requiring av will be unavailable",
+            exc_info=True,
+        )
     av = PlaceholderModule("av")  # type: ignore[assignment]
 
 try:
     import soundfile
-except ImportError:
+except Exception as exc:
+    if not (isinstance(exc, ModuleNotFoundError) and exc.name == "soundfile"):
+        logger.warning(
+            "soundfile is installed but failed to import; audio support "
+            "requiring soundfile will be unavailable",
+            exc_info=True,
+        )
     soundfile = PlaceholderModule("soundfile")  # type: ignore[assignment]
 
 

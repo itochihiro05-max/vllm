@@ -50,13 +50,27 @@ from vllm.utils.import_utils import PlaceholderModule
 
 try:
     from runai_model_streamer import SafetensorsStreamer
-except ImportError:
+except Exception as exc:
+    if not (
+        isinstance(exc, ModuleNotFoundError) and exc.name == "runai_model_streamer"
+    ):
+        logger.warning(
+            "runai_model_streamer is installed but failed to import; "
+            "RunAI streaming model loading will be unavailable",
+            exc_info=True,
+        )
     runai_model_streamer = PlaceholderModule("runai_model_streamer")  # type: ignore[assignment]
     SafetensorsStreamer = runai_model_streamer.placeholder_attr("SafetensorsStreamer")
 
 try:
     from fastsafetensors import SingleGroup
-except ImportError:
+except Exception as exc:
+    if not (isinstance(exc, ModuleNotFoundError) and exc.name == "fastsafetensors"):
+        logger.warning(
+            "fastsafetensors is installed but failed to import; the "
+            "fastsafetensors loader will be unavailable",
+            exc_info=True,
+        )
     fastsafetensors = PlaceholderModule("fastsafetensors")
     SingleGroup = fastsafetensors.placeholder_attr("SingleGroup")
 

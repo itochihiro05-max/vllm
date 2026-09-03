@@ -32,6 +32,8 @@ from vllm.utils.import_utils import PlaceholderModule
 if TYPE_CHECKING:
     from vllm.engine.arg_utils import EngineArgs
 
+logger = init_logger(__name__)
+
 try:
     from tensorizer import (
         DecryptionParams,
@@ -42,7 +44,13 @@ try:
     from tensorizer.stream_io import open_stream
     from tensorizer.utils import convert_bytes, get_mem_usage, no_init_or_tensor
 
-except ImportError:
+except Exception as exc:
+    if not (isinstance(exc, ModuleNotFoundError) and exc.name == "tensorizer"):
+        logger.warning(
+            "tensorizer is installed but failed to import; tensorizer "
+            "load format will be unavailable",
+            exc_info=True,
+        )
     tensorizer = PlaceholderModule("tensorizer")
     DecryptionParams = tensorizer.placeholder_attr("DecryptionParams")
     EncryptionParams = tensorizer.placeholder_attr("EncryptionParams")
@@ -65,7 +73,6 @@ __all__ = [
     "TensorizerConfig",
 ]
 
-logger = init_logger(__name__)
 _TENSORIZER_ENGINE_CLEANUP_GRACE_S = 10.0
 
 

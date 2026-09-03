@@ -20,13 +20,18 @@ from vllm.multimodal.video_decoders import (
 from vllm.utils.import_utils import PlaceholderModule
 from vllm.utils.registry import ExtensionManager
 
+logger = init_logger(__name__)
+
 try:
     import cv2
-except ImportError:
+except Exception as exc:
+    if not (isinstance(exc, ModuleNotFoundError) and exc.name == "cv2"):
+        logger.warning(
+            "cv2 is installed but failed to import; the OpenCV video "
+            "backend will be unavailable",
+            exc_info=True,
+        )
     cv2 = PlaceholderModule("cv2")
-
-
-logger = init_logger(__name__)
 
 
 class VideoLoaderRegistry(ExtensionManager):

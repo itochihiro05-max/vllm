@@ -15,14 +15,20 @@ from .base import (
     check_frame_pixel_limit,
 )
 
+logger = init_logger(__name__)
+
 try:
     import cv2
     import cv2.videoio_registry as vr
-except ImportError:
+except Exception as exc:
+    if not (isinstance(exc, ModuleNotFoundError) and exc.name == "cv2"):
+        logger.warning(
+            "cv2 is installed but failed to import; the OpenCV video "
+            "backend will be unavailable",
+            exc_info=True,
+        )
     cv2 = PlaceholderModule("cv2")
     vr = PlaceholderModule("cv2").placeholder_attr("videoio_registry")
-
-logger = init_logger(__name__)
 
 
 def decode_opencv(

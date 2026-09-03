@@ -26,7 +26,13 @@ logger = init_logger(__name__)
 
 try:
     import pandas as pd
-except ImportError:
+except Exception as exc:
+    if not (isinstance(exc, ModuleNotFoundError) and exc.name == "pandas"):
+        logger.warning(
+            "pandas is installed but failed to import; AITER ops "
+            "requiring pandas will be unavailable",
+            exc_info=True,
+        )
     pd = PlaceholderModule("pandas")
 
 # fp8_dtype is not cached.

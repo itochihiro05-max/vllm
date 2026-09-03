@@ -9,21 +9,44 @@ import numpy as np
 import numpy.typing as npt
 import torch
 
+from vllm.logger import init_logger
 from vllm.utils.import_utils import PlaceholderModule
+
+logger = init_logger(__name__)
 
 try:
     import av as av
-except ImportError:
+except Exception as exc:
+    if not (isinstance(exc, ModuleNotFoundError) and exc.name == "av"):
+        logger.warning(
+            "av is installed but failed to import; audio support "
+            "requiring av will be unavailable",
+            exc_info=True,
+        )
     av = PlaceholderModule("av")  # type: ignore[assignment]
 
 try:
     import scipy.signal as scipy_signal
-except ImportError:
+except Exception as exc:
+    if not (
+        isinstance(exc, ModuleNotFoundError) and exc.name in ("scipy", "scipy.signal")
+    ):
+        logger.warning(
+            "scipy is installed but failed to import; audio resampling "
+            "requiring scipy will be unavailable",
+            exc_info=True,
+        )
     scipy_signal = PlaceholderModule("scipy").placeholder_attr("signal")  # type: ignore[assignment]
 
 try:
     import soxr as soxr
-except ImportError:
+except Exception as exc:
+    if not (isinstance(exc, ModuleNotFoundError) and exc.name == "soxr"):
+        logger.warning(
+            "soxr is installed but failed to import; audio resampling "
+            "requiring soxr will be unavailable",
+            exc_info=True,
+        )
     soxr = PlaceholderModule("soxr")  # type: ignore[assignment]
 
 

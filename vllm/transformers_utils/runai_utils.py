@@ -18,7 +18,15 @@ SUPPORTED_SCHEMES = ["s3://", "gs://", "az://"]
 try:
     from runai_model_streamer import list_safetensors as runai_list_safetensors
     from runai_model_streamer import pull_files as runai_pull_files
-except ImportError:
+except Exception as exc:
+    if not (
+        isinstance(exc, ModuleNotFoundError) and exc.name == "runai_model_streamer"
+    ):
+        logger.warning(
+            "runai_model_streamer is installed but failed to import; "
+            "RunAI streaming model loading will be unavailable",
+            exc_info=True,
+        )
     runai_model_streamer = PlaceholderModule("runai_model_streamer")  # type: ignore[assignment]
     runai_pull_files = runai_model_streamer.placeholder_attr("pull_files")
     runai_list_safetensors = runai_model_streamer.placeholder_attr("list_safetensors")
